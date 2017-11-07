@@ -1,4 +1,4 @@
-# Crosstool-NG
+# Crosstool-NG with Moxie customizations
 
 ## Introduction
 
@@ -18,7 +18,7 @@ git clone https://github.com/jserv/crosstool-ng
 
 ## Moxiebox toolchain generation
 
-Specify moxie configurations:
+Specify Moxie configurations:
 ```
 mkdir -p ~/build-toolchain
 cd ~/build-toolchain
