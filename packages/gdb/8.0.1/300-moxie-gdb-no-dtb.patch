@@ -1,0 +1,83 @@
+From 97493f780d7ccdfcf9e5698d3fbfbe6fa852d9e7 Mon Sep 17 00:00:00 2001
+From: Jim Huang <jserv.tw@gmail.com>
+Date: Tue, 7 Nov 2017 23:24:50 +0800
+Subject: [PATCH 1/2] moxie: gdb-no-dtb
+
+---
+ sim/moxie/Makefile.in | 12 ++----------
+ sim/moxie/interp.c    | 30 ------------------------------
+ 2 files changed, 2 insertions(+), 40 deletions(-)
+
+diff --git a/sim/moxie/Makefile.in b/sim/moxie/Makefile.in
+index 4b160f3..040619f 100644
+--- a/sim/moxie/Makefile.in
++++ b/sim/moxie/Makefile.in
+@@ -25,16 +25,8 @@ SIM_OBJS = \
+ 	sim-resume.o
+ 
+ SIM_EXTRA_LIBS = -lm -lz
+-SIM_EXTRA_INSTALL = install-dtb
+-SIM_EXTRA_CFLAGS = -DDTB="\"$(dtbdir)/moxie-gdb.dtb\""
+ 
+ ## COMMON_POST_CONFIG_FRAG
+ 
+-all: moxie-gdb.dtb
+-
+-moxie-gdb.dtb: moxie-gdb.dts
+-	dtc -O dtb -o moxie-gdb.dtb ${srcdir}/moxie-gdb.dts
+-
+-install-dtb: moxie-gdb.dtb
+-	$(SHELL) $(srcdir)/../../mkinstalldirs $(DESTDIR)$(dtbdir)
+-	$(INSTALL_DATA) moxie-gdb.dtb $(DESTDIR)$(dtbdir)/moxie-gdb.dtb
++all:
++	# skipped
+diff --git a/sim/moxie/interp.c b/sim/moxie/interp.c
+index c9605d4..40dbf1b 100644
+--- a/sim/moxie/interp.c
++++ b/sim/moxie/interp.c
+@@ -1247,34 +1247,6 @@ sim_open (SIM_OPEN_KIND kind, host_callback *cb,
+   return sd;
+ }
+ 
+-/* Load the device tree blob.  */
+-
+-static void
+-load_dtb (SIM_DESC sd, const char *filename)
+-{
+-  int size = 0;
+-  FILE *f = fopen (filename, "rb");
+-  char *buf;
+-  sim_cpu *scpu = STATE_CPU (sd, 0); /* FIXME */ 
+-
+-  /* Don't warn as the sim works fine w/out a device tree.  */
+-  if (f == NULL)
+-    return;
+-  fseek (f, 0, SEEK_END);
+-  size = ftell(f);
+-  fseek (f, 0, SEEK_SET);
+-  buf = alloca (size);
+-  if (size != fread (buf, 1, size, f))
+-    {
+-      sim_io_eprintf (sd, "ERROR: error reading ``%s''.\n", filename);
+-      fclose (f);
+-      return;
+-    }
+-  sim_core_write_buffer (sd, scpu, write_map, buf, 0xE0000000, size);
+-  cpu.asregs.sregs[9] = 0xE0000000;
+-  fclose (f);
+-}
+-
+ SIM_RC
+ sim_create_inferior (SIM_DESC sd, struct bfd *prog_bfd,
+ 		     char * const *argv, char * const *env)
+@@ -1319,7 +1291,5 @@ sim_create_inferior (SIM_DESC sd, struct bfd *prog_bfd,
+ 
+   wlat (scpu, 0, 4 + 4 + i * 4, 0);
+ 
+-  load_dtb (sd, DTB);
+-
+   return SIM_RC_OK;
+ }
+-- 
+2.7.4
+
